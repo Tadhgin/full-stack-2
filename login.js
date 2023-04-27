@@ -1,13 +1,13 @@
-const mysql = require('mysql');
+const mysql = require('mysql2/promise');
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
 
 const connection = mysql.createConnection({
-	host     : process.env.DB_HOST,
-	user     : process.env.DB_USER,
-	password : process.env.DB_PASSWORD,
-	database : process.env.DB_DATABASE
+	host: process.env.DB_HOST,
+	user: process.env.DB_USER,
+	password: process.env.DB_PASSWORD,
+	database: process.env.DB_DATABASE
 });
 
 const app = express();
@@ -20,19 +20,19 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'static')));
 // http://localhost:3000/
-app.get('/', function(request, response) {
+app.get('/', function (request, response) {
 	// Render login template
 	response.sendFile(path.join(__dirname + '/login.html'));
 });
 // http://localhost:3000/auth
-app.post('/auth', function(request, response) {
+app.post('/auth', function (request, response) {
 	// Capture the input fields
 	let username = request.body.username;
 	let password = request.body.password;
 	// Ensure the input fields exists and are not empty
 	if (username && password) {
 		// Execute SQL query that'll select the account from the database based on the specified username and password
-		connection.query('SELECT * FROM accounts WHERE username = ? AND password = ?', [username, password], function(error, results, fields) {
+		connection.query('SELECT * FROM accounts WHERE username = ? AND password = ?', [username, password], function (error, results, fields) {
 			// If there is an issue with the query, output the error
 			if (error) throw error;
 			// If the account exists
@@ -53,7 +53,7 @@ app.post('/auth', function(request, response) {
 	}
 });
 // http://localhost:3000/home
-app.get('/home', function(request, response) {
+app.get('/home', function (request, response) {
 	// If the user is loggedin
 	if (request.session.loggedin) {
 		// Output username
@@ -64,4 +64,5 @@ app.get('/home', function(request, response) {
 	}
 	response.end();
 });
+const port = process.env.PORT || 3000;
 app.listen(3000); //http://localhost:3000/
